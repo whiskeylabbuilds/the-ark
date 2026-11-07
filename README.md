@@ -35,7 +35,7 @@ There the AI runs at about 37 words/s fully on the GPU, and the whole box draws 
 
 ```bash
 sudo apt install -y git
-git clone https://github.com/YOUR-ACCOUNT/the-ark.git ~/ark
+git clone https://github.com/whiskeylabbuilds/the-ark.git ~/ark
 cd ~/ark && ./install.sh
 ```
 

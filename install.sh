@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The Ark installer: offline library + local AI server on Ubuntu 24.04 / Linux Mint 22 / Debian 12.
 #
-#   git clone <this repo> ~/ark && cd ~/ark && ./install.sh
+#   git clone https://github.com/whiskeylabbuilds/the-ark.git ~/ark && cd ~/ark && ./install.sh
 #
 # Run it as your normal user (it asks for sudo when needed). Safe to run again at any time: every
 # step checks what's already done. With an NVIDIA card it stops once for a reboot after the driver
