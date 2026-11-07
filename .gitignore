@@ -1,0 +1,10 @@
+# Secrets and machine settings
+.env
+# This Ark's private layer: family pages, fleet list, custom dashboard (see local.example/)
+local/
+# Claude Code's personal settings
+.claude/
+# Generated at runtime
+config/homepage/logs/
+__pycache__/
+*.pyc

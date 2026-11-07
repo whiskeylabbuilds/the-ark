@@ -1,0 +1,15 @@
+# The Ark: HTTPS front door for Ask the Ark, so browsers allow the microphone (voice input).
+# Uses Caddy's own local certificate authority ("tls internal"). Devices trust it once by
+# installing the Ark's root certificate (http://<ark>/ca/ark-root-ca.crt; see Getting Started).
+# Site names come from ARK_NAMES and HOST_ADDR in .env (the compose file turns ARK_NAMES into ARK_TLS_NAMES).
+{
+	auto_https disable_redirects
+	skip_install_trust
+	https_port 3443
+	default_sni {$HOST_ADDR}   # IP connections carry no name, so serve the IP certificate
+}
+
+{$ARK_TLS_NAMES} localhost {$HOST_ADDR} {
+	tls internal
+	reverse_proxy open-webui:8080
+}

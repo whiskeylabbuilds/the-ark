@@ -1,0 +1,148 @@
+/* The Ark palette.  Swap colors here; nothing else needs editing.
+   Navy #1A1D26 · Red #E8291A · Red-orange #F54A14 · Orange #EB6A14 · Light orange #E88C44
+   Light gray #C5C1B8 · Mid gray #A5A196 · Dark gray #4F4B46                           */
+:root {
+  --ark-navy: #1A1D26;
+  --ark-navy-2: #232733;     /* card surface, one step lighter than the background */
+  --ark-red: #E8291A;
+  --ark-red-orange: #F54A14;
+  --ark-orange: #EB6A14;
+  --ark-light-orange: #E88C44;
+  --ark-light-gray: #C5C1B8;
+  --ark-mid-gray: #A5A196;
+  --ark-dark-gray: #4F4B46;
+  --ark-stripe: linear-gradient(90deg, #E8291A, #F54A14, #EB6A14, #E88C44, #C5C1B8, #A5A196, #4F4B46);
+}
+
+/* Homepage's own color scale (RGB triplets), remapped so every built-in element follows the palette */
+:root.theme-slate, .theme-slate {
+  --color-50: 236 233 227;
+  --color-100: 197 193 184;   /* light gray */
+  --color-200: 197 193 184;
+  --color-300: 165 161 150;   /* mid gray */
+  --color-400: 165 161 150;
+  --color-500: 120 115 108;
+  --color-600: 79 75 70;      /* dark gray */
+  --color-700: 44 47 58;
+  --color-800: 26 29 38;      /* navy background */
+  --color-900: 18 20 27;
+  --color-logo-start: 235 106 20;
+  --color-logo-stop: 232 41 26;
+}
+
+body, #page_wrapper { background-color: var(--ark-navy) !important; }
+
+/* Brand stripe across the top, echoing the palette */
+#page_wrapper::before {
+  content: "";
+  position: fixed; top: 0; left: 0; right: 0; height: 6px; z-index: 50;
+  background: var(--ark-stripe);
+}
+
+/* Title */
+#information-widgets .widget-inner-text, #information-widgets span {
+  color: var(--ark-light-gray);
+}
+#information-widgets .text-2xl, #information-widgets [class*="text-2xl"] {
+  color: var(--ark-orange) !important;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+}
+
+/* Group headings */
+.service-group-name {
+  color: var(--ark-light-orange) !important;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Service cards */
+.service-card, .service .service-card, li.service > div {
+  background-color: var(--ark-navy-2) !important;
+  border: 1px solid var(--ark-dark-gray);
+  border-left: 4px solid var(--ark-orange);
+  border-radius: 14px;
+  transition: border-color .15s, transform .15s;
+}
+.service-card:hover, li.service > div:hover {
+  border-color: var(--ark-red-orange);
+  transform: translateY(-2px);
+}
+.service-name, .service-title-text {
+  color: var(--ark-light-gray) !important;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.service-description {
+  color: var(--ark-mid-gray) !important;
+}
+
+/* Icons sit on a light-gray pill so dark and light logos both read clearly */
+.service-icon {
+  background: var(--ark-light-gray);
+  border-radius: 999px;
+  width: 46px !important;
+  height: 46px;
+  flex: 0 0 46px;
+  align-self: center;
+  margin-left: 8px;
+}
+.service-icon img { width: 28px !important; height: 28px !important; }
+
+/* Up/down status dot */
+.service-site-monitor div[class*="bg-emerald"], .service-site-monitor .bg-emerald-500 { background-color: var(--ark-light-orange) !important; }
+.service-site-monitor div[class*="bg-rose"],    .service-site-monitor .bg-rose-500    { background-color: var(--ark-red) !important; }
+
+/* Resource bars */
+#information-widgets [class*="bg-theme-"] > div, .resource-usage div[class*="bg-theme"] {
+  background-color: var(--ark-orange);
+}
+
+a:focus-visible { outline: 2px solid var(--ark-light-orange); outline-offset: 2px; }
+
+/* ---------- Ask the Ark banner: the AI gets the biggest spot, centered at the top ---------- */
+.services-group:has(#ark-ai) { max-width: 920px; margin: 0.5rem auto 0.25rem; }
+.services-group:has(#ark-ai) > button { display: none; }            /* no section header */
+#ark-ai .service-card {
+  padding: 1.25rem 1.5rem;
+  min-height: 132px;
+  background:
+    linear-gradient(135deg, rgba(232, 41, 26, 0.20), rgba(235, 106, 20, 0.10) 55%, rgba(35, 39, 51, 0.0)),
+    var(--ark-navy-2) !important;
+  border: 1px solid var(--ark-orange);
+  border-left: 6px solid var(--ark-red-orange);
+  border-radius: 18px;
+  box-shadow: 0 0 0 1px rgba(235, 106, 20, 0.15), 0 10px 30px rgba(232, 41, 26, 0.12);
+}
+#ark-ai .service-card:hover { border-color: var(--ark-light-orange); transform: translateY(-2px); }
+#ark-ai .service-title { align-items: center; }
+#ark-ai .service-icon {
+  width: 84px !important; height: 84px; flex: 0 0 84px; margin-left: 4px;
+  background: var(--ark-light-gray);
+}
+#ark-ai .service-icon img { width: 50px !important; height: 50px !important; }
+#ark-ai .service-name {
+  font-size: 1.65rem; line-height: 1.2; letter-spacing: 0.02em; color: #ECE9E3 !important;
+  padding-left: 1rem;
+}
+#ark-ai .service-description {
+  font-size: 0.98rem !important; line-height: 1.45; margin-top: 0.35rem; max-width: 46rem;
+  color: var(--ark-light-gray) !important; font-weight: 400;
+}
+#ark-ai .service-name::after {
+  content: "Start a conversation  →";
+  display: block; width: fit-content; margin-top: 0.75rem;
+  padding: 0.4rem 1rem; border-radius: 999px;
+  background: var(--ark-orange); color: var(--ark-navy);
+  font-size: 0.9rem; font-weight: 800; letter-spacing: 0.03em;
+}
+#ark-ai .service-card:hover .service-name::after { background: var(--ark-light-orange); }
+
+@media (max-width: 640px) {
+  #ark-ai .service-card { padding: 1rem; }
+  #ark-ai .service-icon { width: 60px !important; height: 60px; flex: 0 0 60px; }
+  #ark-ai .service-icon img { width: 36px !important; height: 36px !important; }
+  #ark-ai .service-name { font-size: 1.3rem; padding-left: 0.6rem; }
+  #ark-ai .service-description { font-size: 0.9rem !important; }
+}

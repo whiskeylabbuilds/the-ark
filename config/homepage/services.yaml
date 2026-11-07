@@ -1,0 +1,123 @@
+# Plain-language names first; the app name is in the description.
+# This is the public default. To customize without touching it, copy it to local/homepage/services.yaml
+# and mount that in local/compose.yml (see local.example/).
+# Links use HOMEPAGE_VAR_HOST (HOST_ADDR in .env). All icons are local (/icons = config/homepage/icons).
+
+- Ask the Ark:
+    - Ask the Ark (AI):
+        id: ark-ai
+        href: http://{{HOMEPAGE_VAR_HOST}}:3000
+        icon: /icons/open-webui.svg
+        description: Ask anything, from repairs and first aid to cooking, history and homework. Private and offline, it runs entirely on the Ark. Pick Ark Mechanic for vehicle and equipment repairs. Double-check medical answers in the Library.
+        siteMonitor: http://open-webui:8080
+
+- Start Here:
+    - Getting Started & FAQ:
+        id: ark-getting-started
+        href: /pages/getting-started.html
+        icon: /icons/mdi-help-circle.svg
+        description: What each section does, adding books and courses, common questions
+    - Voice Setup (one time per device):
+        id: ark-voice
+        href: /pages/getting-started.html#voice
+        icon: /icons/mdi-microphone.svg
+        description: Talk to Ask the Ark and hear it answer. Install the Ark certificate once, then use https://{{HOMEPAGE_VAR_HOST}}:3443
+    - About The Ark:
+        id: ark-about
+        href: /pages/about.html
+        icon: /icons/ark.svg
+        description: What the Ark is, what it's built with, and who made it · WhiskeyLab
+
+- Library & Learning:
+    - Reference Library:
+        id: ark-library
+        href: http://{{HOMEPAGE_VAR_HOST}}:8080
+        icon: /icons/kiwix.svg
+        description: Wikipedia, medicine, survival, repair guides, Q&A · Kiwix
+        siteMonitor: http://kiwix:8080
+    - Courses & Lessons:
+        id: ark-courses
+        href: http://{{HOMEPAGE_VAR_HOST}}:8300
+        icon: /icons/mdi-school.svg
+        description: Khan Academy math, science and more · Kolibri
+        siteMonitor: http://kolibri:8300
+    - Bookshelf:
+        id: ark-books
+        href: http://{{HOMEPAGE_VAR_HOST}}:5000
+        icon: /icons/kavita.svg
+        description: Bible, philosophy, field manuals, PDFs · Kavita
+        siteMonitor: http://kavita:5000
+    - Music:
+        id: ark-music
+        href: http://{{HOMEPAGE_VAR_HOST}}:4533
+        icon: /icons/mdi-music.svg
+        description: Your music library, in any browser or phone app · Navidrome
+        siteMonitor: http://navidrome:4533
+
+- Notes & Tools:
+    - Field Notes:
+        id: ark-notes
+        href: http://{{HOMEPAGE_VAR_HOST}}:8083
+        icon: /icons/flatnotes.svg
+        description: Shared notes, checklists, logs · FlatNotes
+        siteMonitor: http://flatnotes:8080
+    - Data Toolkit:
+        id: ark-cyberchef
+        href: http://{{HOMEPAGE_VAR_HOST}}:8084
+        icon: /icons/cyberchef.svg
+        description: Encode, decode, convert, decrypt · CyberChef
+        siteMonitor: http://cyberchef:8080
+
+- Maps & Radio:
+    - Regional Map:
+        id: ark-maps
+        href: http://{{HOMEPAGE_VAR_HOST}}:8082
+        icon: /icons/mdi-map.svg
+        description: {{HOMEPAGE_VAR_MAP_REGION}} · offline
+        siteMonitor: http://maps:80
+    - Mesh Radio (Meshtastic):
+        id: ark-mesh
+        href: http://localhost:8085
+        icon: /icons/meshtastic.svg
+        description: Meshtastic client. Open on the Ark itself, in Chromium
+        siteMonitor: http://meshtastic-web:8080
+    - Mesh Radio (MeshCore):
+        id: ark-meshcore
+        href: http://{{HOMEPAGE_VAR_HOST}}:8086
+        icon: /icons/mdi-radio-tower.svg
+        description: MeshCore messaging through the radio plugged into the Ark, from any device · mc-webui
+        siteMonitor: http://meshcore-web:5000
+
+- System Status:
+    - Graphics Card:
+        id: ark-gpu
+        icon: /icons/mdi-gauge.svg
+        description: Runs the AI · live, every 10 s
+        widget:
+          type: customapi
+          url: http://stats:9100/
+          refreshInterval: 10000
+          mappings:
+            - field: gpu
+              label: Card
+            - field: gpu_util
+              label: Usage
+            - field: gpu_mem
+              label: Memory
+            - field: gpu_temp
+              label: Temp
+    - Power:
+        id: ark-power
+        icon: /icons/mdi-gauge.svg
+        description: Measured by the CPU and graphics card · wall draw is a little higher
+        widget:
+          type: customapi
+          url: http://stats:9100/
+          refreshInterval: 10000
+          mappings:
+            - field: cpu_power
+              label: CPU
+            - field: gpu_power
+              label: GPU
+            - field: total_power
+              label: Total

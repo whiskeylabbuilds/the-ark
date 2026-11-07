@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ark · Maps (__REGION__)</title>
+<link rel="stylesheet" href="assets/maplibre-gl.css">
+<script src="assets/maplibre-gl.js"></script>
+<script src="assets/pmtiles.js"></script>
+<script src="assets/basemaps.js"></script>
+<link rel="icon" href="ark.svg">
+<style>
+  :root {
+    --ark-navy: #1A1D26; --ark-navy-2: #232733; --ark-orange: #EB6A14; --ark-light-orange: #E88C44;
+    --ark-light-gray: #C5C1B8; --ark-mid-gray: #A5A196; --ark-dark-gray: #4F4B46;
+    --ark-stripe: linear-gradient(90deg, #E8291A, #F54A14, #EB6A14, #E88C44, #C5C1B8, #A5A196, #4F4B46);
+  }
+  html, body { margin: 0; height: 100%; background: var(--ark-navy); font-family: system-ui, sans-serif; }
+  body { display: flex; flex-direction: column; }
+  header {
+    display: flex; align-items: center; gap: 14px; padding: 10px 16px 12px;
+    background: var(--ark-navy); color: var(--ark-light-gray); position: relative;
+  }
+  header::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--ark-stripe); }
+  header a.home { color: var(--ark-orange); font-weight: 800; letter-spacing: .25em; text-decoration: none; font-size: 15px; }
+  header a.home:hover { color: var(--ark-light-orange); }
+  header .sub { color: var(--ark-mid-gray); font-size: 14px; }
+  header .sub b { color: var(--ark-light-gray); font-weight: 600; }
+  header label { margin-left: auto; color: var(--ark-mid-gray); font-size: 13px; }
+  #flavor {
+    background: var(--ark-navy-2); color: var(--ark-light-gray); border: 1px solid var(--ark-dark-gray);
+    border-radius: 999px; padding: 5px 12px; font: inherit; margin-left: 6px;
+  }
+  #flavor:focus-visible { outline: 2px solid var(--ark-light-orange); }
+  #map { flex: 1; }
+  .maplibregl-ctrl-group { background: var(--ark-navy-2); }
+  .maplibregl-ctrl-group button { filter: invert(.85) sepia(.2); }
+  .maplibregl-ctrl-scale { background: rgba(26,29,38,.85); color: var(--ark-light-gray); border-color: var(--ark-orange); }
+</style>
+</head>
+<body>
+<header>
+  <a class="home" href="/" id="home">THE ARK</a>
+  <span class="sub"><b>Regional Map</b> · __REGION__</span>
+  <label>Style
+    <select id="flavor">
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+      <option value="grayscale">Gray</option>
+    </select>
+  </label>
+</header>
+<div id="map"></div>
+<script>
+  const protocol = new pmtiles.Protocol();
+  maplibregl.addProtocol("pmtiles", protocol.tile);
+  const base = location.href.replace(/[^/]*$/, "");
+  // "THE ARK" links back to the dashboard (port 80 on the same host)
+  document.getElementById("home").href = location.protocol + "//" + location.hostname + "/";
+
+  function style(flavor) {
+    return {
+      version: 8,
+      glyphs: base + "assets/fonts/{fontstack}/{range}.pbf",
+      sprite: base + "assets/sprites/v4/" + flavor,
+      sources: {
+        protomaps: {
+          type: "vector",
+          url: "pmtiles://" + base + "region.pmtiles",
+          attribution: "© OpenStreetMap contributors, Protomaps"
+        }
+      },
+      layers: basemaps.layers("protomaps", basemaps.namedFlavor(flavor), { lang: "en" })
+    };
+  }
+
+  const BBOX = [__BBOX__];
+  const map = new maplibregl.Map({
+    container: "map",
+    style: style("dark"),
+    // BBOX is filled in by scripts/build-maps.sh from MAP_BBOX in .env (west,south,east,north)
+    bounds: [[BBOX[0], BBOX[1]], [BBOX[2], BBOX[3]]],
+    maxBounds: [[BBOX[0] - 2, BBOX[1] - 1.5], [BBOX[2] + 2, BBOX[3] + 1.5]]
+  });
+  map.addControl(new maplibregl.NavigationControl());
+  map.addControl(new maplibregl.ScaleControl({ unit: "imperial" }));
+  map.addControl(new maplibregl.FullscreenControl());
+  document.getElementById("flavor").onchange = e => map.setStyle(style(e.target.value));
+</script>
+</body>
+</html>

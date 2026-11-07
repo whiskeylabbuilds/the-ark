@@ -1,0 +1,57 @@
+# Kiwix ZIM files to download.  Format:  <folder on download.kiwix.org/zim/>  <file prefix>
+# The script picks the newest file for each prefix. Comment a line out (#) to skip it.
+# Sizes checked 2026-11-05 (GB). Total for the enabled lines: ~104 GB.
+
+# --- Wikipedia (pick ONE) ---
+wikipedia  wikipedia_en_all_nopic_        # 52.7  all articles, no images  <- default
+#wikipedia wikipedia_en_all_maxi_         # 127   all articles with images (too big with everything else)
+#wikipedia wikipedia_en_all_mini_         # 14.4  intro + infobox only (pick this to make room for Survivor Library)
+wikipedia  wikipedia_en_medicine_maxi_    # 1.9   WikiMed, with images
+
+# --- Survival / preparedness ---
+other      zimgit-post-disaster_en_       # 0.6
+other      zimgit-water_en_               # 0.02
+other      zimgit-food-preparation_en_    # 0.1
+other      zimgit-medicine_en_            # 0.07
+other      zimgit-knots_en_               # 0.03
+zimit      www.ready.gov_en_              # 2.4   FEMA Ready.gov
+zimit      wwwnc.cdc.gov_en_all_          # 0.2   CDC travel health
+#zimit     survivorlibrary.com_en_all_    # 220   Survivor Library (pre-industrial how-to books). Only fits with Wikipedia "mini".
+
+# --- Medicine / vet ---
+libretexts libretexts.org_en_med_         # 1.2
+stack_exchange medicalsciences.stackexchange.com_en_all_  # 0.06
+other      wikivet.net_en_all_maxi_       # 0.06  animal health
+
+# --- Science, math, education ---
+libretexts libretexts.org_en_math_        # 0.8
+libretexts libretexts.org_en_phys_        # 0.6
+libretexts libretexts.org_en_chem_        # 2.2
+libretexts libretexts.org_en_bio_         # 2.2
+libretexts libretexts.org_en_eng_         # 0.7
+libretexts libretexts.org_en_k12_         # 0.4
+libretexts libretexts.org_en_workforce_   # 0.5   trades
+stack_exchange math.stackexchange.com_en_all_     # 7.4
+stack_exchange physics.stackexchange.com_en_all_  # 1.8
+wikibooks  wikibooks_en_all_maxi_         # 4.7   textbooks and how-tos
+
+# --- Electronics, radio, cars, DIY ---
+ifixit     ifixit_en_all_                 # 3.6
+stack_exchange electronics.stackexchange.com_en_all_  # 4.3
+stack_exchange ham.stackexchange.com_en_all_          # 0.08
+stack_exchange mechanics.stackexchange.com_en_all_    # 0.3  car maintenance
+stack_exchange diy.stackexchange.com_en_all_          # 2.1
+stack_exchange gardening.stackexchange.com_en_all_    # 0.9
+stack_exchange outdoors.stackexchange.com_en_all_     # 0.1
+stack_exchange cooking.stackexchange.com_en_all_      # 0.2
+
+# --- Philosophy, religion, literature ---
+gutenberg  gutenberg_en_lcc-b_            # 6.4   Gutenberg: philosophy, psychology, religion (all of it)
+wikisource wikisource_en_all_nopic_       # 3.9   public-domain texts incl. Bible translations
+stack_exchange philosophy.stackexchange.com_en_all_     # 0.2
+stack_exchange christianity.stackexchange.com_en_all_   # 0.2
+stack_exchange hermeneutics.stackexchange.com_en_all_   # 0.2  Bible study
+
+# --- Reference ---
+wikivoyage wikivoyage_en_all_maxi_        # 1.1
+#wiktionary wiktionary_en_all_nopic_      # 9.2   dictionary

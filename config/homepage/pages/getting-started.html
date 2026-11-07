@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Ark: Getting Started &amp; FAQ</title>
+<link rel="icon" href="/icons/ark.svg">
+<style>
+  /* The Ark palette (same as the dashboard). Fully offline: no web fonts or outside files. */
+  :root {
+    --navy: #1A1D26; --navy-2: #232733; --red: #E8291A; --red-orange: #F54A14;
+    --orange: #EB6A14; --light-orange: #E88C44; --light-gray: #C5C1B8;
+    --mid-gray: #A5A196; --dark-gray: #4F4B46; --white: #ECE9E3;
+    --stripe: linear-gradient(90deg, #E8291A, #F54A14, #EB6A14, #E88C44, #C5C1B8, #A5A196, #4F4B46);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--navy); scroll-behavior: smooth; }
+  body { margin: 0; color: var(--light-gray); background: var(--navy);
+         font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Ubuntu, Cantarell, sans-serif; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 6px; background: var(--stripe); z-index: 10; }
+  a { color: var(--light-orange); }
+  a:hover { color: #fff; }
+  strong { color: var(--white); }
+  code, kbd { font: .88em/1.4 ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
+              background: #12141B; border: 1px solid var(--dark-gray); border-radius: 6px; padding: .08em .4em; color: #F3E3D3; }
+  pre { background: #12141B; border: 1px solid var(--dark-gray); border-radius: 10px; padding: .7rem .9rem; overflow-x: auto; margin: .5rem 0 .8rem; }
+  pre code { background: none; border: 0; padding: 0; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            max-width: 920px; margin: 0 auto; padding: 1.4rem 1.25rem 0; }
+  .brand { display: flex; align-items: center; gap: .6rem; color: var(--orange); text-decoration: none;
+           font-weight: 800; letter-spacing: .25em; font-size: .95rem; }
+  .brand img { width: 26px; height: 26px; }
+  .actions a, .actions button { font: inherit; font-size: .85rem; color: var(--light-gray); background: transparent; cursor: pointer;
+           border: 1px solid var(--dark-gray); border-radius: 999px; padding: .3rem .9rem; text-decoration: none; margin-left: .4rem; }
+  .actions a:hover, .actions button:hover { border-color: var(--red-orange); color: #fff; }
+
+  main { max-width: 920px; margin: 0 auto; padding: 1rem 1.25rem 3rem; }
+  header.title { text-align: center; padding: 2.2rem 0 1.2rem; }
+  .eyebrow { color: var(--orange); font-weight: 800; letter-spacing: .35em; font-size: 1rem; margin: 0; }
+  h1 { margin: .3rem 0 .4rem; font-size: clamp(2rem, 6vw, 3rem); letter-spacing: .06em; color: var(--white); line-height: 1.15; }
+  .subtitle { margin: 0; color: var(--mid-gray); font-style: italic; }
+
+  .intro { margin: 1.4rem 0 1.6rem; padding: 1.2rem 1.4rem; border-radius: 14px;
+           background: var(--navy-2); border: 1px solid var(--dark-gray); border-left: 5px solid var(--orange); }
+  .intro p { margin: 0 0 .6rem; } .intro p:last-child { margin: 0; }
+
+  nav.toc { margin: 0 0 1rem; }
+  nav.toc h2 { font-size: .85rem; letter-spacing: .2em; text-transform: uppercase; color: var(--light-orange); margin: 0 0 .6rem; }
+  nav.toc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .45rem; }
+  nav.toc a { display: inline-block; color: var(--light-gray); text-decoration: none; font-size: .9rem;
+              border: 1px solid var(--dark-gray); border-radius: 999px; padding: .25rem .8rem; background: var(--navy-2); }
+  nav.toc a:hover { border-color: var(--orange); color: #fff; }
+
+  h2.section { font-size: 1rem; letter-spacing: .2em; text-transform: uppercase; color: var(--light-orange);
+               border-bottom: 1px solid var(--dark-gray); padding-bottom: .5rem; margin: 2.6rem 0 1.1rem; scroll-margin-top: 1.5rem; }
+
+  .steps { counter-reset: step; list-style: none; margin: 0; padding: 0; }
+  .steps > li { counter-increment: step; position: relative; padding: .1rem 0 .9rem 3rem; }
+  .steps > li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 2.1rem; height: 2.1rem; border-radius: 50%;
+                        background: var(--orange); color: var(--navy); font-weight: 800; display: grid; place-items: center; }
+
+  .card { background: var(--navy-2); border: 1px solid var(--dark-gray); border-left: 4px solid var(--orange);
+          border-radius: 14px; padding: 1.1rem 1.3rem; margin: 0 0 1rem; break-inside: avoid; scroll-margin-top: 1.5rem; }
+  .card:target { border-color: var(--red-orange); }
+  .card-head { display: flex; align-items: center; gap: .9rem; margin-bottom: .5rem; flex-wrap: wrap; }
+  .card-head img { width: 40px; height: 40px; padding: 6px; border-radius: 50%; background: var(--light-gray); flex: 0 0 40px; }
+  .card h3 { margin: 0; font-size: 1.15rem; color: var(--white); letter-spacing: .02em; }
+  .card .app { color: var(--mid-gray); font-size: .85rem; }
+  .card .open { margin-left: auto; font-size: .85rem; text-decoration: none; border: 1px solid var(--orange); color: var(--light-orange);
+                border-radius: 999px; padding: .2rem .8rem; white-space: nowrap; }
+  .card .open:hover { background: var(--orange); color: var(--navy); }
+  .card p { margin: 0 0 .6rem; }
+  .card ul, .card ol { margin: .2rem 0 .7rem; padding-left: 1.3rem; }
+  .card li { margin: .2rem 0; }
+  .card li::marker { color: var(--orange); }
+  .card h4 { margin: .8rem 0 .3rem; font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; color: var(--light-orange); }
+
+  .tip { margin: .7rem 0 .2rem; padding: .65rem .95rem; border-radius: 10px; background: rgba(235,106,20,.12);
+         border: 1px solid rgba(235,106,20,.45); color: #F3E3D3; font-size: .95rem; }
+  .warn { background: rgba(232,41,26,.14); border-color: rgba(232,41,26,.55); }
+  .tip strong:first-child { color: var(--light-orange); }
+  .warn strong:first-child { color: #FF8A6E; }
+
+  table { width: 100%; border-collapse: collapse; margin: .4rem 0 .8rem; font-size: .95rem; }
+  th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--dark-gray); vertical-align: top; }
+  th { color: var(--light-orange); font-size: .78rem; letter-spacing: .15em; text-transform: uppercase; }
+  td:first-child { white-space: nowrap; }
+
+  details { background: var(--navy-2); border: 1px solid var(--dark-gray); border-radius: 12px; margin: 0 0 .6rem; padding: 0 1.1rem; }
+  details[open] { border-left: 4px solid var(--orange); }
+  summary { cursor: pointer; padding: .8rem 0; font-weight: 700; color: var(--white); list-style: none; display: flex; gap: .7rem; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "+"; color: var(--orange); font-weight: 800; width: 1rem; flex: 0 0 1rem; }
+  details[open] summary::before { content: "–"; }
+  details > div { padding: 0 0 .9rem 1.7rem; }
+  details p { margin: 0 0 .6rem; }
+  details ul, details ol { margin: .2rem 0 .6rem; padding-left: 1.2rem; }
+
+  footer { margin-top: 2.4rem; padding-top: 1rem; border-top: 1px solid var(--dark-gray); color: var(--mid-gray); font-size: .9rem; text-align: center; }
+  footer p { margin: .2rem 0; }
+
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    .card .open { margin-left: 0; }
+    td:first-child { white-space: normal; }
+    .actions a { display: none; }
+  }
+  @media print {
+    @page { margin: 14mm; }
+    html, body { background: #fff !important; color: #111; font-size: 10.5pt; }
+    body::before, .topbar, nav.toc, .card .open { display: none; }
+    main { max-width: none; padding: 0; }
+    h1, strong, .card h3, summary { color: #000; }
+    header.title { padding: .8rem 0 .6rem; border-top: 5px solid var(--orange); }
+    .intro, .card, details, .tip, pre, code { background: #fff !important; color: #111; }
+    .intro, .card, details { border: 1px solid #999; border-left: 4px solid var(--orange); }
+    .tip { border: 1px solid var(--orange); }
+    h2.section, th, .card h4 { color: #A04000; }
+    a { color: #000; text-decoration: none; }
+    details { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="/" title="Back to The Ark dashboard"><img src="/icons/ark.svg" alt="">THE ARK</a>
+  <div class="actions">
+    <a href="/">Dashboard</a>
+    <button type="button" onclick="window.print()">Print</button>
+  </div>
+</div>
+
+<main>
+  <header class="title">
+    <p class="eyebrow">THE ARK</p>
+    <h1>GETTING STARTED</h1>
+    <p class="subtitle">What each section does, how to use it, and answers to common questions</p>
+  </header>
+
+  <div class="intro">
+    <p><strong>The Ark is our family's offline library and AI helper.</strong> It runs on the small computer in the house and keeps working with no internet: encyclopedias, medical guides, courses, books, maps, notes and a private AI, all reachable from any phone, tablet or laptop on our Wi-Fi.</p>
+    <p>Open a web browser and go to <strong><code>http://ark.local</code></strong>. That's the dashboard. Every tile on it opens one section.</p>
+  </div>
+
+  <nav class="toc" aria-label="On this page">
+    <h2>On this page</h2>
+    <ul>
+      <li><a href="#first-steps">First steps</a></li>
+      <li><a href="#sections">The sections</a></li>
+      <li><a href="#library">Reference Library</a></li>
+      <li><a href="#courses">Courses</a></li>
+      <li><a href="#books">Bookshelf</a></li>
+      <li><a href="#music">Music</a></li>
+      <li><a href="#ai">Ask the Ark</a></li>
+      <li><a href="#voice">Voice</a></li>
+      <li><a href="#notes">Field Notes</a></li>
+      <li><a href="#toolkit">Data Toolkit</a></li>
+      <li><a href="#map">Regional Map</a></li>
+      <li><a href="#radio">Mesh Radio</a></li>
+      <li><a href="#howto">How-to guides</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#addresses">Addresses</a></li>
+    </ul>
+  </nav>
+
+  <!-- ============================================================ -->
+  <h2 class="section" id="first-steps">First steps</h2>
+  <ol class="steps">
+    <li><strong>Join our Wi-Fi.</strong> The Ark is only reachable from inside the house network (or a travel router it's plugged into). It does not need the internet.</li>
+    <li><strong>Open the dashboard</strong> at <code>http://ark.local</code>. On a phone, use your browser's <em>Add to Home Screen</em> so it opens like an app.</li>
+    <li><strong>Make your own logins</strong> where asked. Ask the Ark (AI), the Bookshelf and Courses each have their own account. The very first account created in each one becomes the administrator, so a parent should create theirs first.</li>
+    <li><strong>Try a search.</strong> Open the Reference Library and search for something you know, like <em>water purification</em> or <em>how to splint a broken arm</em>.</li>
+  </ol>
+  <div class="tip"><strong>Status dots:</strong> each tile has a small dot. <strong>Orange</strong> means that section is running. <strong>Red</strong> or <strong>gray</strong> means it's down or not started yet; see the FAQ.</div>
+
+  <!-- ============================================================ -->
+  <h2 class="section" id="sections">The sections</h2>
+
+  <section class="card" id="library">
+    <div class="card-head">
+      <img src="/icons/kiwix.svg" alt="">
+      <div><h3>Reference Library</h3><span class="app">Kiwix · port 8080</span></div>
+      <a class="open" href="http://ark.local:8080">Open ↗</a>
+    </div>
+    <p>Dozens of complete websites saved for offline use. Pick a book from the main page, then use its search box, or search across everything from the top bar.</p>
+    <h4>What's inside</h4>
+    <ul>
+      <li><strong>Encyclopedia:</strong> all of English Wikipedia (text only, every article in full), Wikibooks (how-to textbooks), Wikisource, Wikivoyage (travel and places).</li>
+      <li><strong>Medical:</strong> WikiMed (medical Wikipedia with pictures), LibreTexts Medicine, CDC, Medical Sciences Q&amp;A, plus WikiVet for animals.</li>
+      <li><strong>Survival and preparedness:</strong> Ready.gov, water, food preparation, knots, field medicine and post-disaster guides.</li>
+      <li><strong>Fixing things:</strong> iFixit repair guides, and Q&amp;A sites for DIY/home improvement, car mechanics, electronics, gardening, cooking, ham radio and the outdoors.</li>
+      <li><strong>Learning:</strong> LibreTexts textbooks (biology, chemistry, physics, math, engineering, K-12, trades), and Q&amp;A sites for math, physics and philosophy.</li>
+      <li><strong>Faith and philosophy:</strong> Project Gutenberg's philosophy and religion collection, and Q&amp;A sites on Christianity and Bible interpretation.</li>
+    </ul>
+    <div class="tip"><strong>Tip:</strong> search inside one book for better results. Open WikiMed first for medical questions, and iFixit or the DIY site for repairs.</div>
+  </section>
+
+  <section class="card" id="courses">
+    <div class="card-head">
+      <img src="/icons/mdi-school.svg" alt="">
+      <div><h3>Courses &amp; Lessons</h3><span class="app">Kolibri · port 8300</span></div>
+      <a class="open" href="http://ark.local:8300">Open ↗</a>
+    </div>
+    <p>Full courses with videos, exercises and progress tracking. It holds whatever channels the Ark's admin has imported; <strong>Khan Academy</strong> (math, science, economics, arts and humanities, reading and life skills) is a good first one.</p>
+    <ul>
+      <li>Sign in, choose <strong>Learn</strong>, pick a channel, then a topic. Videos and quizzes work offline.</li>
+      <li>Each person should have their own learner account so their progress is saved. A parent (admin) can create these under <strong>Facility → Users</strong>.</li>
+    </ul>
+    <p>To add more courses, see <a href="#howto-courses">Add courses</a> below.</p>
+  </section>
+
+  <section class="card" id="books">
+    <div class="card-head">
+      <img src="/icons/kavita.svg" alt="">
+      <div><h3>Bookshelf</h3><span class="app">Kavita · port 5000</span></div>
+      <a class="open" href="http://ark.local:5000">Open ↗</a>
+    </div>
+    <p>A reader for ebooks (ePub) and PDFs, organized into shelves. It remembers where you stopped reading.</p>
+    <table>
+      <tr><th>Shelf</th><th>What's on it</th></tr>
+      <tr><td>Faith</td><td>King James Bible, World English Bible</td></tr>
+      <tr><td>Western Philosophy</td><td>Plato, Aristotle, Marcus Aurelius, Epictetus, More, Hobbes, Locke, Hume, Mill, Emerson, Thoreau, Russell</td></tr>
+      <tr><td>European Philosophy</td><td>Machiavelli, Montaigne, Descartes, Pascal, Spinoza, Voltaire, Rousseau, Kant, Schopenhauer, Nietzsche</td></tr>
+      <tr><td>Eastern Philosophy</td><td>Tao Te Ching, Analects of Confucius, Art of War</td></tr>
+      <tr><td>Japanese Philosophy</td><td>Bushido, The Book of Tea</td></tr>
+      <tr><td>Defensive Tactics</td><td>FM 3-90 Tactics, ATP 3-21.8 Infantry Rifle Platoon and Squad, MCRP 3-10A.4 Marine Rifle Squad</td></tr>
+      <tr><td>Manuals</td><td>FM 21-76 US Army Survival Manual</td></tr>
+    </table>
+    <p>Click a book's cover to open it. Use the gear icon while reading for font size and dark mode. To add your own books, see <a href="#howto-books">Add books</a>.</p>
+  </section>
+
+  <section class="card" id="music">
+    <div class="card-head">
+      <img src="/icons/mdi-music.svg" alt="">
+      <div><h3>Music</h3><span class="app">Navidrome · port 4533</span></div>
+      <a class="open" href="http://ark.local:4533">Open ↗</a>
+    </div>
+    <p>Our own music collection, playable in any browser on the Wi-Fi. It works with no internet.</p>
+    <ul>
+      <li>Browse by artist, album, genre or playlist, or search. Click a song or album to play it; use the bar at the bottom to pause, skip and set the volume.</li>
+      <li>Each person can have their own login, with their own playlists and favorites. The first account created becomes the administrator; add others under <strong>Settings → Users</strong>.</li>
+      <li><strong>Phone apps:</strong> free Subsonic apps (Symfonium or Substreamer on Android, play:Sub or Amperfy on iPhone) can stream from the Ark and save songs on the phone to play away from home. In the app, add a server: address <code>http://ark.local:4533</code> plus your Music login.</li>
+    </ul>
+    <p>To add songs, see <a href="#howto-music">Add music</a> below.</p>
+  </section>
+
+  <section class="card" id="ai">
+    <div class="card-head">
+      <img src="/icons/open-webui.svg" alt="">
+      <div><h3>Ask the Ark (AI)</h3><span class="app">Open WebUI + Ollama · port 3000</span></div>
+      <a class="open" href="http://ark.local:3000">Open ↗</a>
+    </div>
+    <p>A private AI chat, like ChatGPT, that runs entirely on the Ark. Nothing you type leaves the house.</p>
+    <h4>Choose a model (top-left menu)</h4>
+    <table>
+      <tr><th>Model</th><th>Best for</th></tr>
+      <tr><td><strong>qwen3:8b</strong></td><td>The main one. Best at reasoning, math, step-by-step instructions.</td></tr>
+      <tr><td><strong>llama3.1:8b</strong></td><td>A second opinion. Ask both if an answer matters.</td></tr>
+      <tr><td><strong>gemma3:4b</strong></td><td>Faster, and can look at photos: attach a picture of a plant, a part or a label and ask about it.</td></tr>
+    </table>
+    <ul>
+      <li>Only one model runs at a time; switching takes a few seconds while it loads.</li>
+      <li>You can attach a PDF to a chat and ask questions about it. To make a set of PDFs always available, see <a href="#howto-knowledge">Teach the AI your documents</a>.</li>
+    </ul>
+    <div class="tip warn"><strong>Always double-check:</strong> small offline AIs can sound confident and still be wrong. For medicine, doses, electrical work or anything dangerous, confirm in WikiMed, the Reference Library or a manual before acting.</div>
+  </section>
+
+  <section class="card" id="voice">
+    <div class="card-head">
+      <img src="/icons/mdi-microphone.svg" alt="">
+      <div><h3>Talk to the Ark (voice)</h3><span class="app">Whisper listens · Kokoro speaks · all on the Ark</span></div>
+      <a class="open" href="https://ark.local:3443">Open ↗</a>
+    </div>
+    <p>Ask the Ark can listen and talk back, fully offline. Nothing you say leaves the house.</p>
+    <h4>Using it</h4>
+    <ul>
+      <li><strong>Dictate:</strong> tap the <strong>microphone</strong> in the message box, speak, tap again. Your words appear as text; send them as usual.</li>
+      <li><strong>Hands-free:</strong> tap the <strong>voice mode</strong> button (the sound-wave icon next to the message box) and just talk. It answers out loud; talk again when it finishes. Handy under a truck or on the tractor.</li>
+      <li><strong>Read an answer aloud:</strong> tap the <strong>speaker</strong> icon under any answer.</li>
+      <li><strong>Change the voice:</strong> your picture → <strong>Settings → Audio</strong>. Try <code>af_heart</code> (default), <code>am_michael</code>, <code>bm_george</code> or <code>bf_emma</code>.</li>
+    </ul>
+    <h4>One-time setup on each phone or computer</h4>
+    <p>Browsers only allow the microphone on secure (<code>https://</code>) pages, so each device has to trust the Ark's own certificate once. Speakers and typing work without this; only the microphone needs it. On the Ark itself, skip this and use <code>http://localhost:3000</code>.</p>
+    <ol>
+      <li><strong>Download the certificate:</strong> <a href="/ca/ark-root-ca.crt" download><code>ark-root-ca.crt</code></a> (from this page, on the device you're setting up).</li>
+      <li><strong>Install and trust it:</strong>
+        <ul>
+          <li><strong>iPhone / iPad:</strong> open this page in <em>Safari</em> and tap the link → <em>Allow</em>. Then <strong>Settings → Profile Downloaded → Install</strong>. Then <strong>Settings → General → About → Certificate Trust Settings</strong> and switch on <em>Caddy Local Authority</em>.</li>
+          <li><strong>Android:</strong> <strong>Settings → Security (or "Security &amp; privacy") → More security settings → Encryption &amp; credentials → Install a certificate → CA certificate</strong>, then pick the downloaded file. (Menu names vary a little by phone.)</li>
+          <li><strong>Windows:</strong> double-click the file → <strong>Install Certificate → Local Machine → Place all certificates in: Trusted Root Certification Authorities</strong> → Finish. Restart Chrome or Edge.</li>
+          <li><strong>Mac:</strong> double-click the file to add it to Keychain Access, open <em>Caddy Local Authority</em>, expand <strong>Trust</strong> and set it to <strong>Always Trust</strong>.</li>
+          <li><strong>Firefox</strong> (any computer): Settings → Privacy &amp; Security → Certificates → View Certificates → Authorities → Import.</li>
+        </ul>
+      </li>
+      <li><strong>Open Ask the Ark at</strong> <a href="https://ark.local:3443"><code>https://ark.local:3443</code></a> (Android: <code>https://&lt;the Ark's IP address&gt;:3443</code>) and allow the microphone when the browser asks. Bookmark it or add it to your home screen.</li>
+    </ol>
+    <div class="tip"><strong>Why trust it?</strong> The certificate was created by the Ark itself and only vouches for the Ark's own addresses. Its private key never leaves the Ark.</div>
+  </section>
+
+  <section class="card" id="notes">
+    <div class="card-head">
+      <img src="/icons/flatnotes.svg" alt="">
+      <div><h3>Field Notes</h3><span class="app">FlatNotes · port 8083</span></div>
+      <a class="open" href="http://ark.local:8083">Open ↗</a>
+    </div>
+    <p>Shared notes everyone in the house can read and edit: checklists, supply counts, medication logs, contact lists, radio schedules.</p>
+    <ul>
+      <li>Click <strong>New</strong>, give the note a title, and type. It saves automatically.</li>
+      <li>Formatting uses simple marks: <code># Heading</code>, <code>- item</code>, <code>- [ ] checkbox</code>, <code>**bold**</code>.</li>
+      <li>Use the search box to find any word in any note.</li>
+    </ul>
+    <div class="tip"><strong>Note:</strong> anyone on our Wi-Fi can read and change notes. Don't store passwords or other private details here.</div>
+  </section>
+
+  <section class="card" id="toolkit">
+    <div class="card-head">
+      <img src="/icons/cyberchef.svg" alt="">
+      <div><h3>Data Toolkit</h3><span class="app">CyberChef · port 8084</span></div>
+      <a class="open" href="http://ark.local:8084">Open ↗</a>
+    </div>
+    <p>A "Swiss Army knife" for data. Drag an operation from the left into the middle (the <em>recipe</em>), paste text into <strong>Input</strong>, and read the <strong>Output</strong>.</p>
+    <ul>
+      <li>Convert units, dates and number formats; decode Base64, hex or Morse code.</li>
+      <li>Check whether a downloaded file is intact (SHA-256 checksum).</li>
+      <li>Encrypt or decrypt text with a shared password (AES) to pass private messages.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="map">
+    <div class="card-head">
+      <img src="/icons/mdi-map.svg" alt="">
+      <div><h3>Regional Map</h3><span class="app">Offline map · port 8082</span></div>
+      <a class="open" href="http://ark.local:8082">Open ↗</a>
+    </div>
+    <p>A detailed street map of <strong>the region chosen when the Ark was set up</strong> that works with no internet.</p>
+    <ul>
+      <li>Drag to move, scroll or pinch to zoom. Zoom in far enough to see street names and buildings.</li>
+      <li>Use the style menu at the top to switch between dark, light and other map styles.</li>
+      <li>It shows the map but doesn't give turn-by-turn directions or your GPS position.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="radio">
+    <div class="card-head">
+      <img src="/icons/meshtastic.svg" alt="">
+      <div><h3>Mesh Radio</h3><span class="app">Meshtastic · port 8085 &nbsp;|&nbsp; MeshCore · port 8086</span></div>
+    </div>
+    <p>Text messaging over small long-range LoRa radios, with no cell service or internet. The Ark supports both radio systems; they don't talk to each other, so use whichever one the family's radios run.</p>
+    <h4>Meshtastic</h4>
+    <ul>
+      <li>Plug a Meshtastic radio into the Ark's USB port, then open <code>http://localhost:8085</code> <strong>in Chromium on the Ark itself</strong> (Firefox and phones can't talk to USB radios).</li>
+      <li>Choose <strong>New connection → Serial</strong> and pick the radio.</li>
+      <li>Handheld radios can also be used straight from a phone with the Meshtastic app over Bluetooth.</li>
+    </ul>
+    <h4>MeshCore</h4>
+    <ul>
+      <li>Plug a MeshCore radio with <em>Companion USB</em> firmware into the Ark. It's picked up automatically.</li>
+      <li>Then open <a href="http://ark.local:8086"><code>http://ark.local:8086</code></a> from <strong>any</strong> phone or laptop on the Wi-Fi to send and read messages.</li>
+    </ul>
+    <div class="tip"><strong>Before a crisis:</strong> flash firmware, set the family channel and test the radios while the internet still works. Write the channel settings in Field Notes.</div>
+  </section>
+
+  <!-- ============================================================ -->
+  <h2 class="section" id="howto">How-to guides</h2>
+
+  <section class="card" id="howto-books">
+    <h3>Add books to the Bookshelf</h3>
+    <p>Kavita reads <strong>ePub</strong>, <strong>PDF</strong>, comic files (CBZ/CBR) and images. Ebooks with DRM (most Kindle and many store-bought ebooks) can't be opened; buy DRM-free copies when you can.</p>
+    <h4>1. Put the file in a shelf folder</h4>
+    <p>Each book gets its own folder inside a shelf, all under <code>/srv/ark/books</code>:</p>
+<pre><code>/srv/ark/books/
+  Manuals/
+    Where There Is No Doctor/
+      Where There Is No Doctor.pdf</code></pre>
+    <ul>
+      <li><strong>On the Ark itself</strong> (keyboard and screen, or Remote Desktop): open the <strong>Files</strong> app, go to <code>/srv/ark/books</code>, and drag the file into a shelf folder.</li>
+      <li><strong>From another Linux PC:</strong> in its file manager, type <code>sftp://data@ark.local/srv/ark/books</code> in the address bar.</li>
+      <li><strong>From Windows:</strong> use WinSCP (protocol <em>SFTP</em>, host <code>ark.local</code>, user <code>data</code>) and drag files into <code>/srv/ark/books</code>.</li>
+    </ul>
+    <h4>2. Tell Kavita about it</h4>
+    <ul>
+      <li><strong>New book on an existing shelf:</strong> in Kavita go to <strong>Settings → Libraries</strong> and click the scan icon next to that library. It also rescans on its own every day.</li>
+      <li><strong>New shelf:</strong> make the folder first. Then in Kavita go to <strong>Settings → Libraries → Add Library</strong>, name it, choose type <strong>Book</strong> (for PDFs and ePubs), add the folder <code>/books/&lt;Shelf name&gt;</code> and save.</li>
+    </ul>
+    <div class="tip"><strong>Note:</strong> inside Kavita the folder is called <code>/books/…</code>; on the Ark's disk it's <code>/srv/ark/books/…</code>. They are the same place.</div>
+  </section>
+
+  <section class="card" id="howto-music">
+    <h3>Add music</h3>
+    <p>Navidrome plays MP3, Apple Lossless and AAC (<code>.m4a</code>), FLAC, OGG, Opus and WAV. Copy-protected files can't be played: old iTunes <code>.m4p</code> purchases and Apple Music subscription downloads.</p>
+    <ol>
+      <li>Copy the songs into <code>/srv/ark/music</code>, the same ways as books (the Ark's <strong>Files</strong> app, <code>sftp://data@ark.local/srv/ark/music</code>, or WinSCP). Any folder layout works; <code>Artist/Album/</code> keeps things tidy.</li>
+      <li>Wait a minute: Navidrome notices new files on its own. To check right away, sign in as the administrator and choose <strong>Scan library</strong> from the activity menu (top right).</li>
+    </ol>
+    <div class="tip"><strong>Tip:</strong> Navidrome sorts by the tags inside each file (artist, album, track number, cover art), not by folder names. Files from iTunes and CD rips are normally tagged already.</div>
+    <div class="tip warn"><strong>Keep it private:</strong> our music is personal. It stays on the Ark and is never shared or published.</div>
+  </section>
+
+  <section class="card" id="howto-courses">
+    <h3>Add courses (Kolibri channels)</h3>
+    <p>Needs the internet while importing. Afterwards the courses work offline.</p>
+    <ol>
+      <li>Sign in to Courses &amp; Lessons as the administrator.</li>
+      <li>Open the menu (☰) → <strong>Device</strong> → <strong>Channels</strong> → <strong>Import</strong> → <strong>Kolibri Studio</strong>.</li>
+      <li>Pick a channel. Choose <strong>Import all</strong>, or open it and tick only the topics you want. The size is shown as you select.</li>
+      <li>Click <strong>Import</strong>. Progress is shown under <strong>Device → Tasks</strong>; several imports queue up and run one after another.</li>
+    </ol>
+    <p><strong>Good picks:</strong> PhET Interactive Simulations (1 GB), CK-12 (7 GB), Open Stax college textbooks (2 GB), BCcampus trades textbooks (1 GB), Osmosis medical videos (5 GB), Sikana how-to videos (16 GB), Blockly Games (0.3 GB).</p>
+  </section>
+
+  <section class="card" id="howto-knowledge">
+    <h3>Teach the AI your documents</h3>
+    <p>Give Ask the Ark a set of PDFs (manuals, family plans, medical guides) so it can quote them when it answers.</p>
+    <ol>
+      <li>In Ask the Ark, go to <strong>Workspace → Knowledge → +</strong> and create a collection, for example <em>House Manuals</em>.</li>
+      <li>Drag PDFs or text files into it and wait for them to finish processing.</li>
+      <li>In a chat, type <code>#</code> and pick the collection, or attach it to a model under <strong>Workspace → Models</strong> so it's always used.</li>
+    </ol>
+    <div class="tip"><strong>Tip:</strong> ask it to "cite the document and page". If it can't point to a source, treat the answer as a guess.</div>
+  </section>
+
+  <section class="card" id="howto-shutdown">
+    <h3>Shut down or restart safely</h3>
+    <ul>
+      <li>Use the Mint menu → <strong>Shut Down</strong> or <strong>Restart</strong>, or press the power button <em>once</em> and choose Shut Down if asked.</li>
+      <li>Hold the power button for 5 seconds only if the Ark is frozen.</li>
+      <li>After it starts again, wait about 2 minutes. All sections come back on their own; nobody needs to log in.</li>
+    </ul>
+  </section>
+
+  <!-- ============================================================ -->
+  <h2 class="section" id="faq">FAQ</h2>
+
+  <details>
+    <summary>The dashboard won't load at all.</summary>
+    <div>
+      <ul>
+        <li>Make sure your device is on our Wi-Fi, not cellular data.</li>
+        <li>Type the address exactly: <code>http://ark.local</code> (http, not https).</li>
+        <li>Check the Ark is on (power light). After a power cut, give it about 2 minutes after it boots.</li>
+        <li>If it still won't load, the Ark may have a new network address. Someone with access can check it on the Ark with <code>hostname -I</code>.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>One tile has a red or gray dot, or opens an error.</summary>
+    <div>
+      <p>That section is stopped. Restarting the Ark fixes most problems. On the Ark, an adult can also open a terminal and run:</p>
+<pre><code>cd ~/ark &amp;&amp; docker compose up -d</code></pre>
+      <p>(Use the folder where the Ark project lives if it isn't <code>~/ark</code>.)</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Does the Ark need the internet?</summary>
+    <div>
+      <p>No. Everything on it works fully offline. The internet is only needed to <em>add</em> things: downloading more courses, books or library updates, or new AI models.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What happens if the power goes out?</summary>
+    <div>
+      <ul>
+        <li>The Ark turns off with the power. Your content isn't harmed.</li>
+        <li>When power returns, it starts back up (if <em>After Power Loss → Power On</em> is set in its BIOS; otherwise press the power button).</li>
+        <li>A small battery backup (UPS) keeps it running through short outages.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Is it safe to trust the AI's answers?</summary>
+    <div>
+      <p>Use it like a knowledgeable friend, not a doctor or engineer. It's great for explaining, brainstorming and summarizing, but it can be wrong. Check anything important in the Reference Library, especially medical and safety information.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Who can see what I type or read?</summary>
+    <div>
+      <ul>
+        <li>Nothing leaves the house: there's no cloud and no tracking.</li>
+        <li>Your AI chats and reading progress are tied to your own login.</li>
+        <li><strong>Field Notes and these guide pages are open to anyone on our Wi-Fi.</strong> Keep private details (passwords, meeting places) off them.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>I forgot my password.</summary>
+    <div>
+      <p>Ask the family administrator (the parent who made the first account). In Ask the Ark it's under <strong>Admin Panel → Users</strong>; in the Bookshelf under <strong>Settings → Users</strong>; in Courses under <strong>Facility → Users</strong>.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>How do I add more Reference Library books (Wikipedia with pictures, other sites)?</summary>
+    <div>
+      <p>An adult, while the internet works: add a line to <code>content/zims.list</code> in the Ark project folder (the browse list is at <code>download.kiwix.org/zim</code>), then run <code>scripts/download-zims.sh</code>. It shows the sizes and asks first, resumes if interrupted, and refreshes the library when done.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>How much room is left?</summary>
+    <div>
+      <p>The dashboard's top bar shows free disk space next to the drive icon. The drive is 512 GB. The download scripts always keep at least 60 GB free so the Ark keeps running smoothly.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>How do I keep it up to date?</summary>
+    <div>
+      <p>Every few months, while the internet works, an adult runs these in the Ark project folder:</p>
+<pre><code>docker compose pull &amp;&amp; docker compose up -d
+scripts/download-zims.sh</code></pre>
+      <p>The first updates the apps; the second fetches newer versions of the library books and removes the old ones.</p>
+    </div>
+  </details>
+
+  <!-- ============================================================ -->
+  <h2 class="section" id="addresses">Addresses at a glance</h2>
+  <section class="card">
+    <table>
+      <tr><th>Section</th><th>Address</th></tr>
+      <tr><td>Dashboard</td><td><code>http://ark.local</code></td></tr>
+      <tr><td>Reference Library</td><td><code>http://ark.local:8080</code></td></tr>
+      <tr><td>Courses &amp; Lessons</td><td><code>http://ark.local:8300</code></td></tr>
+      <tr><td>Bookshelf</td><td><code>http://ark.local:5000</code></td></tr>
+      <tr><td>Music</td><td><code>http://ark.local:4533</code></td></tr>
+      <tr><td>Ask the Ark (AI)</td><td><code>http://ark.local:3000</code></td></tr>
+      <tr><td>Ask the Ark with voice</td><td><code>https://ark.local:3443</code> (after the one-time certificate setup)</td></tr>
+      <tr><td>Field Notes</td><td><code>http://ark.local:8083</code></td></tr>
+      <tr><td>Data Toolkit</td><td><code>http://ark.local:8084</code></td></tr>
+      <tr><td>Regional Map</td><td><code>http://ark.local:8082</code></td></tr>
+      <tr><td>Mesh Radio: Meshtastic</td><td><code>http://localhost:8085</code> (on the Ark only)</td></tr>
+      <tr><td>Mesh Radio: MeshCore</td><td><code>http://ark.local:8086</code></td></tr>
+    </table>
+  </section>
+
+  <footer>
+    <p>The Ark · Getting Started &amp; FAQ</p>
+    <p>Print this page and keep it with your emergency papers, since the Ark is off when the power is off.</p>
+  </footer>
+</main>
+<script>
+  // Open every FAQ answer when printing, so the paper copy is complete.
+  addEventListener('beforeprint', () => document.querySelectorAll('details').forEach(d => d.open = true));
+</script>
+<script>
+  // Show the address this page was opened with (IP or name), so the guide stays right if the IP changes.
+  (function () {
+    var h = location.hostname, old = "ark.local";
+    if (!h || h === old) return;
+    document.querySelectorAll("a[href*='" + old + "']").forEach(function (a) { a.href = a.href.split(old).join(h); });
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT), n;
+    while ((n = w.nextNode())) if (n.nodeValue.indexOf(old) > -1) n.nodeValue = n.nodeValue.split(old).join(h);
+  })();
+</script>
+</body>
+</html>

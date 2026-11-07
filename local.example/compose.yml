@@ -1,0 +1,6 @@
+# Private overlay: listed last in COMPOSE_FILE in .env. Remove the lines you don't use.
+services:
+  homepage:
+    volumes:
+      - ./local/homepage/services.yaml:/app/config/services.yaml:ro
+      - ./local/homepage/pages:/app/public/pages:ro

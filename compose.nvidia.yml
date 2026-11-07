@@ -1,0 +1,19 @@
+# NVIDIA graphics card: the AI runs on the GPU, and the dashboard reads it with nvidia-smi.
+# Needs the NVIDIA driver and the NVIDIA Container Toolkit (setup/01-nvidia-driver.sh, setup/02-docker.sh).
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+  stats:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [utility]   # nvidia-smi only, no compute

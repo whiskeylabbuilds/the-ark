@@ -1,0 +1,33 @@
+title: The Ark
+description: Offline library, local AI, maps and radio
+favicon: /icons/ark.svg
+theme: dark
+color: slate          # recolored to The Ark palette in custom.css
+headerStyle: clean
+hideVersion: true
+disableUpdateCheck: true
+statusStyle: dot
+layout:
+  Ask the Ark:
+    style: row
+    columns: 1
+  Start Here:
+    icon: /icons/mdi-compass.svg
+    style: row
+    columns: 2
+  Library & Learning:
+    icon: /icons/mdi-book-open-page-variant.svg
+    style: row
+    columns: 3
+  Notes & Tools:
+    icon: /icons/mdi-toolbox.svg
+    style: row
+    columns: 3
+  Maps & Radio:
+    icon: /icons/mdi-radio-tower.svg
+    style: row
+    columns: 3
+  System Status:
+    icon: /icons/mdi-gauge.svg
+    style: row
+    columns: 2

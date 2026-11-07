@@ -1,0 +1,225 @@
+# The Ark: offline knowledge + local AI server.
+# Data lives in ${ARK_DATA} (default /srv/ark); settings in .env.
+#
+# This file runs on any x86-64 Linux box (AI on the CPU). The graphics-card files add GPU access:
+#   compose.nvidia.yml  NVIDIA (needs the driver + NVIDIA Container Toolkit)
+#   compose.amd.yml     AMD Radeon (ROCm)
+# install.sh picks one and lists it in COMPOSE_FILE in .env, plus local/compose.yml (your private
+# overlay) if it exists, so a plain `docker compose up -d` uses the right set.
+#
+#  Port  Service
+#  80    Homepage dashboard (start here)
+#  8080  Kiwix (Wikipedia, Stack Exchange, iFixit, survival ZIMs)
+#  3000  Open WebUI (local AI chat)
+#  3443  Open WebUI over HTTPS (needed for the microphone / voice input)
+#  8300  Kolibri (Khan Academy etc.; also uses 8301)
+#  5000  Kavita (books / PDFs)
+#  8082  Maps (your region, built by scripts/build-maps.sh)
+#  8083  FlatNotes
+#  8084  CyberChef
+#  8085  Meshtastic web client
+#  8086  MeshCore web client (radio plugged into this machine)
+#  4533  Navidrome music library (files in ${ARK_DATA}/music)
+#  (none) stats: GPU and power readings for the dashboard, internal only
+#  (none) kokoro: offline text-to-speech voices for Ask the Ark, internal only
+
+name: ark
+
+x-common: &common
+  restart: unless-stopped
+  environment: &tz
+    TZ: ${TZ:-UTC}
+
+services:
+  homepage:
+    <<: *common
+    image: ghcr.io/gethomepage/homepage:latest
+    ports: ["80:3000"]
+    environment:
+      <<: *tz
+      # Host names/IPs people type to reach the dashboard (port 80, so no ":port").
+      HOMEPAGE_ALLOWED_HOSTS: ${HOST_ADDR},${ARK_NAMES:-},localhost,127.0.0.1
+      HOMEPAGE_VAR_HOST: ${HOST_ADDR:?set HOST_ADDR in .env}
+      HOMEPAGE_VAR_MAP_REGION: ${MAP_REGION_NAME:-Your region}
+    volumes:
+      - ./config/homepage:/app/config
+      - ./config/homepage/icons:/app/public/icons:ro   # local icons, so the dashboard works offline
+      - ./config/homepage/pages:/app/public/pages:ro   # guide pages (local/compose.yml can swap in your own)
+      - ${ARK_DATA:-/srv/ark}/ca:/app/public/ca:ro      # the Ark's root certificate for voice/HTTPS (scripts/export-ca.sh)
+
+  kiwix:
+    <<: *common
+    image: ghcr.io/kiwix/kiwix-serve:latest
+    command: ["*.zim"]
+    ports: ["8080:8080"]
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/zim:/data:ro
+
+  ollama:
+    <<: *common
+    image: ollama/ollama:latest
+    ports: ["127.0.0.1:11434:11434"]   # local only; Open WebUI talks to it over the Docker network
+    environment:
+      <<: *tz
+      OLLAMA_KEEP_ALIVE: 30m
+      OLLAMA_MAX_LOADED_MODELS: "2"      # the chat model plus the small search model (nomic-embed-text, 0.3 GB), so documents are searched without reloading
+      OLLAMA_FLASH_ATTENTION: "1"        # tested faster on a GTX 1660 Ti; harmless on CPU
+      OLLAMA_KV_CACHE_TYPE: q8_0         # 8-bit context cache: half the memory, so 16k context fits fully in VRAM with qwen3:4b
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/ollama:/root/.ollama
+
+  open-webui:
+    <<: *common
+    image: ghcr.io/open-webui/open-webui:main
+    depends_on: [ollama]
+    ulimits:
+      nofile: { soft: 65536, hard: 65536 }   # Docker's default 1024 runs out while indexing large PDFs
+    ports: ["3000:8080"]
+    environment:
+      <<: *tz
+      OLLAMA_BASE_URL: http://ollama:11434
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY:?set WEBUI_SECRET_KEY in .env}
+      # Embeddings for the PDF knowledge base come from Ollama, so nothing is fetched from the internet.
+      RAG_EMBEDDING_ENGINE: ollama
+      RAG_EMBEDDING_MODEL: nomic-embed-text
+      OFFLINE_MODE: "true"
+      ENABLE_API_KEYS: "true"            # lets scripts/sync-knowledge.py add Bookshelf files (Settings → Account → API Keys)
+      RAG_TOP_K: "6"                     # document excerpts per question (manuals spread answers across pages)
+      CHUNK_SIZE: "2000"                 # bigger pieces keep spec tables (capacities, torques) with their headings
+      CHUNK_OVERLAP: "400"
+      ENABLE_RAG_HYBRID_SEARCH: "true"   # keyword (BM25) + meaning search: finds exact terms like "oil capacity" or part numbers
+      # Voice: Whisper small.en listens (CPU, downloaded once to the data folder); Kokoro speaks (kokoro service).
+      # Applied through Open WebUI's audio settings; these are the first-start defaults.
+      WHISPER_MODEL: small.en
+      AUDIO_TTS_ENGINE: openai
+      AUDIO_TTS_OPENAI_API_BASE_URL: http://kokoro:8880/v1
+      AUDIO_TTS_OPENAI_API_KEY: not-needed
+      AUDIO_TTS_MODEL: kokoro
+      AUDIO_TTS_VOICE: af_heart
+      ANONYMIZED_TELEMETRY: "false"
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/open-webui:/app/backend/data
+
+  kolibri:
+    <<: *common
+    image: learningequality/kolibri:latest
+    # Kolibri serves lesson content from a second port; host and container ports must match.
+    ports: ["8300:8300", "8301:8301"]
+    environment:
+      <<: *tz
+      KOLIBRI_HTTP_PORT: "8300"
+      KOLIBRI_ZIP_CONTENT_PORT: "8301"
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/kolibri:/kolibri
+
+  kavita:
+    <<: *common
+    image: jvmilazz0/kavita:latest
+    ports: ["5000:5000"]
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/kavita:/kavita/config
+      - ${ARK_DATA:-/srv/ark}/books:/books
+
+  maps:
+    <<: *common
+    image: nginx:alpine
+    ports: ["8082:80"]
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/maps/www:/usr/share/nginx/html:ro
+
+  flatnotes:
+    <<: *common
+    image: dullage/flatnotes:latest
+    ports: ["8083:8080"]
+    environment:
+      <<: *tz
+      PUID: "${ARK_UID:-1000}"
+      PGID: "${ARK_GID:-1000}"
+      FLATNOTES_AUTH_TYPE: ${FLATNOTES_AUTH_TYPE:-none}
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/notes:/data
+
+  cyberchef:
+    <<: *common
+    image: ghcr.io/gchq/cyberchef:latest
+    ports: ["8084:8080"]
+
+  meshtastic-web:
+    <<: *common
+    image: ghcr.io/meshtastic/web:latest
+    ports: ["8085:8080"]
+
+  # MeshCore: runs on the server and talks to a USB companion radio plugged into the Ark,
+  # so any phone or laptop on the LAN can message through it (no Web Serial / Chrome needed).
+  meshcore-web:
+    <<: *common
+    image: ghcr.io/marekwo/mc-webui:latest
+    ports: ["8086:5000"]
+    # Only USB serial devices: 188 = ttyUSB (CP2102, CH340), 166 = ttyACM (ESP32-S3, nRF52).
+    device_cgroup_rules:
+      - 'c 188:* rmw'
+      - 'c 166:* rmw'
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/meshcore:/data
+      - /dev:/dev                      # lets it see the radio when it is plugged in later
+    environment:
+      <<: *tz
+      # "auto" picks the first USB radio. With a Meshtastic radio also plugged in, set the
+      # MeshCore one explicitly: ls /dev/serial/by-id/  ->  MC_SERIAL_PORT=/dev/serial/by-id/...
+      MC_SERIAL_PORT: ${MC_SERIAL_PORT:-auto}
+      MC_DEVICE_NAME: ${MC_DEVICE_NAME:-The Ark}
+      MC_CONFIG_DIR: /data
+      MC_BACKUP_ENABLED: "true"
+
+  # GPU and power readings for the dashboard. Internal only (no published port): the dashboard
+  # reads http://stats:9100. Samples every 5 s in the background, so page loads never wait.
+  stats:
+    <<: *common
+    image: python:3.12-slim
+    command: ["python", "-u", "/app/stats.py"]
+    read_only: true
+    volumes:
+      - ./config/stats:/app:ro
+      - /sys:/host/sys:ro     # read-only sensors: power counters (powercap) and AMD/Intel GPU info (drm)
+
+  # Music library: plays the files in ${ARK_DATA}/music in any browser or Subsonic phone app.
+  # Personal music stays in /srv/ark, never in this project folder.
+  navidrome:
+    <<: *common
+    image: deluan/navidrome:latest
+    user: "${ARK_UID:-1000}:${ARK_GID:-1000}"
+    ports: ["4533:4533"]
+    environment:
+      <<: *tz
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /data
+      ND_SCANSCHEDULE: 1h                  # also picks up new files on its own between scans
+      ND_ENABLEEXTERNALSERVICES: "false"   # offline: no Last.fm, Spotify or cover-art lookups
+      ND_ENABLEINSIGHTSCOLLECTOR: "false"  # no anonymous usage reports
+      ND_UILOGINBACKGROUNDURL: ""          # no online login background image
+    volumes:
+      - ${ARK_DATA:-/srv/ark}/music:/music:ro
+      - ${ARK_DATA:-/srv/ark}/navidrome:/data
+
+  # Offline text-to-speech for Ask the Ark (Kokoro, OpenAI-compatible API on :8880).
+  # Internal only: Open WebUI reaches it at http://kokoro:8880/v1. Runs on the CPU so the GPU stays free for the chat model.
+  kokoro:
+    <<: *common
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+
+  # HTTPS front door for Ask the Ark: browsers only allow the microphone on https pages.
+  # Caddy's local certificate authority signs it; its root certificate lives in ${ARK_DATA}/caddy.
+  https:
+    <<: *common
+    image: caddy:2-alpine
+    depends_on: [open-webui]
+    ports: ["3443:3443"]
+    # Caddy wants site names separated by spaces; ARK_NAMES in .env is comma-separated.
+    entrypoint: ["sh", "-c", "export ARK_TLS_NAMES=\"$$(echo \"$$ARK_NAMES\" | tr ',' ' ')\"; exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"]
+    environment:
+      <<: *tz
+      HOST_ADDR: ${HOST_ADDR}
+      ARK_NAMES: ${ARK_NAMES:-}
+    volumes:
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${ARK_DATA:-/srv/ark}/caddy:/data

@@ -1,0 +1,13 @@
+# AMD Radeon graphics card: Ollama's ROCm build. Works on ROCm-supported Radeon cards
+# (RX 6000/7000 and newer, most Radeon Pro). Older or integrated Radeons may need to run on the CPU.
+# Some cards need HSA_OVERRIDE_GFX_VERSION (e.g. 10.3.0 for RX 6600-class); set it in .env.
+# The dashboard reads AMD cards from /sys on its own, so stats needs nothing extra.
+services:
+  ollama:
+    image: ollama/ollama:rocm
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add: ["video", "render"]
+    environment:
+      HSA_OVERRIDE_GFX_VERSION: ${HSA_OVERRIDE_GFX_VERSION:-}
