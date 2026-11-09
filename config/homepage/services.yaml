@@ -73,7 +73,7 @@
         id: ark-maps
         href: http://{{HOMEPAGE_VAR_HOST}}:8082
         icon: /icons/mdi-map.svg
-        description: {{HOMEPAGE_VAR_MAP_REGION}} · offline
+        description: "{{HOMEPAGE_VAR_MAP_REGION}} · offline"
         siteMonitor: http://maps:80
     - Mesh Radio (Meshtastic):
         id: ark-mesh
