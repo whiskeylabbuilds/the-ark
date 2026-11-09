@@ -50,10 +50,19 @@ services:
   kiwix:
     <<: *common
     image: ghcr.io/kiwix/kiwix-serve:latest
-    command: ["*.zim"]
+    # Serves every ZIM in the zim folder. With none yet, it shows a "how to download" page instead of
+    # stopping (scripts/download-zims.sh restarts it when new files arrive).
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo '<library version="20110515"></library>' > /tmp/library.xml
+        for z in /data/*.zim; do [ -e "$$z" ] && kiwix-manage /tmp/library.xml add "$$z"; done
+        if grep -q '<book ' /tmp/library.xml; then exec kiwix-serve --port=8080 --library /tmp/library.xml
+        else exec kiwix-serve --port=8080 --library /tmp/library.xml --customIndex=/placeholder.html; fi
     ports: ["8080:8080"]
     volumes:
       - ${ARK_DATA:-/srv/ark}/zim:/data:ro
+      - ./config/placeholders/library.html:/placeholder.html:ro
 
   ollama:
     <<: *common

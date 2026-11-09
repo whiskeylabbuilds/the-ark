@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The offline map – not downloaded yet</title>
+<style>
+body{font:17px/1.55 system-ui,sans-serif;margin:0;background:#f4f1ea;color:#222;display:grid;place-items:center;min-height:100vh}
+main{max-width:36rem;margin:1.5rem;padding:1.6rem 1.8rem;background:#fff;border-radius:12px;box-shadow:0 2px 12px #0002}
+h1{margin:.1em 0 .4em;font-size:1.5rem}code{background:#eee;padding:.1em .35em;border-radius:4px;overflow-wrap:anywhere}
+pre{background:#222;color:#eee;padding:.8em 1em;border-radius:8px;overflow-x:auto}
+@media (prefers-color-scheme:dark){body{background:#1b1b1b;color:#ddd}main{background:#262626}code{background:#333}}
+</style></head><body><main>
+<h1>The offline map isn't downloaded yet</h1>
+<p>The map is cut from a worldwide map for the area you choose, so it needs your region first.</p>
+<ol><li>Find your area at <code>https://bboxfinder.com</code>: draw a box and copy the numbers next to "Box".</li>
+<li>Add two lines to <code>~/ark/.env</code>, for example:<pre>MAP_BBOX=-106.7,25.8,-88.8,37.1
+MAP_REGION_NAME=Texas and neighbors</pre></li>
+<li>Run:<pre>cd ~/ark &amp;&amp; scripts/build-maps.sh</pre></li></ol>
+<p>A state is usually 0.5–2 GB. This page turns into the map when it finishes.</p>
+<p><a href="javascript:history.back()">&larr; Back</a></p>
+</main></body></html>

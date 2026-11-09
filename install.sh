@@ -85,6 +85,8 @@ chmod 600 .env
 DATA="$(getenv ARK_DATA)"; DATA="${DATA:-/srv/ark}"
 if [ ! -w "$DATA" ]; then sudo mkdir -p "$DATA" && sudo chown "$(id -u):$(id -g)" "$DATA"; fi
 mkdir -p "$DATA"/{zim,ollama,open-webui,kolibri,kavita,books,maps/www,notes,music,navidrome,meshcore,caddy,ca}
+# until scripts/build-maps.sh makes the map, port 8082 shows how to make it (instead of "403 Forbidden")
+[ -f "$DATA/maps/www/index.html" ] || cp config/placeholders/map.html "$DATA/maps/www/index.html"
 # compose files: base + graphics card + private overlay
 cf=docker-compose.yml
 [ "$GPU" = nvidia ] && cf="$cf:compose.nvidia.yml"
