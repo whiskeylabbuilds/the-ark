@@ -29,6 +29,8 @@ HIDE = {
 # Models that can't call tools (Ollama rejects tool requests for them, e.g. Gemma 3: "does not support tools").
 # Ask the Ark normally sends every chat a set of built-in tools; for these it uses the plain mode instead.
 NO_TOOLS = {"gemma3:4b"}
+# Context (tokens) per model, above the Ark-wide OLLAMA_CONTEXT_LENGTH (8192). The 4B fits 16k fully on a 6 GB card.
+CONTEXT = {"qwen3:4b-instruct": 16384}
 # Menu order (models not listed come after). Ark Mechanic is a preset defined by setup-ark-mechanic.py.
 ORDER = ["qwen3:4b-instruct", "ark-mechanic", "qwen3:8b", "llama3.1:8b", "gemma3:4b"]
 DEFAULT = "qwen3:4b-instruct"   # what a new chat starts with
@@ -47,7 +49,7 @@ def api(method, path, body=None):
 
 def save(model_id, name, description, hidden):
     meta_new = {"description": description, "hidden": hidden, "profile_image_url": "/static/favicon.png"}
-    params_new = {}
+    params_new = {"num_ctx": CONTEXT[model_id]} if model_id in CONTEXT else {}
     if model_id in NO_TOOLS:
         params_new["function_calling"] = "legacy"
         meta_new["capabilities"] = {"vision": True, "file_upload": True, "citations": True, "builtin_tools": False}

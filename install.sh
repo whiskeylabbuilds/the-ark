@@ -146,16 +146,40 @@ else
   echo "    skipped in ARK_YES mode: scripts/download-zims.sh, scripts/build-maps.sh"
 fi
 
+# ---------- 8. finish Ask the Ark ----------
+# Plain model names ("Quick Answers", "Deep Thinker"...), hidden helper models, search tuning, voice and
+# Ark Mechanic all need an Ask the Ark API key, which only exists once the first account is made.
+step "Finish Ask the Ark (model names, search, voice, Ark Mechanic)"
+if [ -n "$(getenv OPENWEBUI_API_KEY)" ]; then
+  scripts/setup-ai.sh || echo "    something failed above; fix it and run scripts/setup-ai.sh again"
+elif [ "${ARK_YES:-0}" != 1 ]; then
+  echo "    1. In a browser, open ${c_b}http://$(getenv HOST_ADDR):3000${c_0} and create the first account (it becomes the admin)."
+  echo "    2. Click your name (bottom left) -> Settings -> Account -> API Keys -> Create new secret key, and copy it."
+  echo "    3. Paste it below. It's saved only in .env on this machine."
+  key=""
+  while :; do
+    read -rsp "    API key (or press Enter to do this later): " key || key=""; echo
+    [ -z "$key" ] && break
+    code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $key" http://127.0.0.1:3000/api/models || true)
+    [ "$code" = 200 ] && break
+    echo "    That key didn't work (HTTP $code). Copy it again and paste it, or press Enter to skip."
+  done
+  if [ -n "$key" ]; then
+    setenv OPENWEBUI_API_KEY "$key"; unset key
+    scripts/setup-ai.sh || echo "    something failed above; fix it and run scripts/setup-ai.sh again"
+  fi
+fi
+
 # ---------- done ----------
 A="$(getenv HOST_ADDR)"
+if [ -n "$(getenv OPENWEBUI_API_KEY)" ]; then AI_NEXT="ready. After adding models or books, run scripts/setup-ai.sh"
+else AI_NEXT="create the first account, then run ./install.sh again to finish it (model names, voice, search)"; fi
 cat <<EOF
 
 ${c_o}${c_b}The Ark is running.${c_0}  Dashboard: ${c_b}http://$A${c_0}   (or http://$host.local)
 
 Next steps (in a browser):
-  1. Ask the Ark   http://$A:3000  -> create the first account (it becomes the admin).
-     Then Settings -> Account -> API Keys -> Create, put it in .env as OPENWEBUI_API_KEY=...,
-     and run:  scripts/setup-ai.sh     (search tuning, voice, library tool, model names, Ark Mechanic)
+  1. Ask the Ark   http://$A:3000  -> $AI_NEXT
   2. Bookshelf     http://$A:5000  -> create the admin account, add each folder under /books as a library.
   3. Courses       http://$A:8300  -> set up, then Device -> Channels -> Import (Khan Academy is a good start).
   4. Music         http://$A:4533  -> create the admin account; copy music into $DATA/music.

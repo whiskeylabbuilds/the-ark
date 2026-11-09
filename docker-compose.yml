@@ -65,6 +65,9 @@ services:
       OLLAMA_MAX_LOADED_MODELS: "2"      # the chat model plus the small search model (nomic-embed-text, 0.3 GB), so documents are searched without reloading
       OLLAMA_FLASH_ATTENTION: "1"        # tested faster on a GTX 1660 Ti; harmless on CPU
       OLLAMA_KV_CACHE_TYPE: q8_0         # 8-bit context cache: half the memory, so 16k context fits fully in VRAM with qwen3:4b
+      # How much of a chat each model can read at once (tokens). Ollama's own default (4096) is too small once the
+      # library tool and a few messages are in the chat. Quick Answers gets 16k (scripts/setup-model-names.py).
+      OLLAMA_CONTEXT_LENGTH: ${OLLAMA_CONTEXT_LENGTH:-8192}
     volumes:
       - ${ARK_DATA:-/srv/ark}/ollama:/root/.ollama
 
