@@ -46,19 +46,47 @@ The installer asks before each big step and is safe to run again at any time. It
 3. Creates `.env` with a random secret key, your time zone and your LAN address.
 4. Optionally renames the computer to `ark` so people can type `http://ark.local`, and installs a small
    service that keeps the dashboard links right when your router hands out a new address.
-5. Starts everything, downloads the AI models picked for your hardware, and offers the books, the
-   Reference Library (~100 GB) and the map, each showing its size first.
+5. Starts everything and creates one admin login for Ask the Ark, Bookshelf, Music and Courses. It asks you
+   for the password (press Enter for a random one, saved in `local/admin-login.txt`). See **Accounts** below.
+6. Downloads the AI models picked for your hardware, offers the books, the Reference Library (~100 GB) and
+   the map (each showing its size first), then finishes Ask the Ark: plain model names, search tuning,
+   voice, the library search tool and Ark Mechanic (`scripts/setup-ai.sh`).
 
 Then finish in a browser (the installer prints these steps):
 
-- **Ask the Ark** (`:3000`): create the first account (it becomes the admin). Under Settings → Account → API Keys,
-  create a key, put it in `.env` as `OPENWEBUI_API_KEY=...`, and run `scripts/setup-ai.sh`. That applies the
-  search tuning and voice settings, installs the library search tool, names the models and creates Ark Mechanic.
-- **Bookshelf** (`:5000`): create the admin account and add each folder under `/books` as a library.
-- **Courses** (`:8300`): run the setup, then Device → Channels → Import. Pick only the topics you need, and watch the size it shows.
-- **Music** (`:4533`): create the admin account, then copy music into `/srv/ark/music`.
+- **Bookshelf** (`:5000`): sign in and add each folder under `/books` as a library.
+- **Courses** (`:8300`): sign in, then Device → Channels → Import. Pick only the topics you need, and watch the size it shows.
+- **Music** (`:4533`): sign in, then copy music into `/srv/ark/music`.
 
 The **Getting Started & FAQ** page on the dashboard explains every section to the rest of the household.
+
+## Accounts
+
+The installer creates the same admin login in four apps:
+
+| App | Sign in with |
+|---|---|
+| Ask the Ark (`:3000`) | `admin@ark.local` and your password |
+| Bookshelf (`:5000`), Music (`:4533`), Courses (`:8300`) | `admin` and your password |
+
+If you let the installer pick a random password, it's in `local/admin-login.txt` (readable only by you, never
+committed). Change it, then delete that file:
+
+- **Ask the Ark:** your name (bottom left) → Settings → Account → Change Password.
+- **Bookshelf:** your name (top right) → Settings → Account → Password.
+- **Music:** your name (top right) → Users → your user → Change password.
+- **Courses:** your name (top right) → Profile → Change password.
+
+**Add family members** (or a second admin) in each app:
+
+- **Ask the Ark:** Admin Panel → Users → **+** (role *User*, or *Admin*). New sign-ups are off, so only the admin adds people.
+- **Bookshelf:** Settings → Users → Invite, then send the person the invite link it shows (tick *Admin* for another admin).
+- **Music:** your name → Users → **+ Create** (tick *Is admin* for another admin).
+- **Courses:** Facility → Users → New user (type *Admin* for another admin; *Learner* for kids).
+
+Ask the Ark's setup scripts use an API key that the installer made and saved in `.env` (`OPENWEBUI_API_KEY`).
+Changing the password doesn't affect it. Run `scripts/create-admins.py` by hand with `ARK_ADMIN_PASSWORD=...`
+to redo any app that still has no admin; it never changes an existing account.
 
 ## Disk budget (512 GB drive)
 
@@ -92,6 +120,7 @@ Music, books you bought and anything else under `/srv/ark` stay on your machine.
 | Script | What it does |
 |---|---|
 | `install.sh` | Everything above. `ARK_YES=1` accepts defaults; `ARK_NO_PULL=1` skips updating the programs. |
+| `scripts/create-admins.py` | The first admin in Ask the Ark, Bookshelf, Music and Courses, plus Ask the Ark's API key (skips apps that have one) |
 | `scripts/setup-ai.sh` | Finishes Ask the Ark (needs `OPENWEBUI_API_KEY`). Runs the four scripts below. |
 | `scripts/setup-ask-the-ark.py` | Search tuning (chunk size, hybrid search), offline voice, Reference Library tool |
 | `scripts/setup-model-names.py` | Friendly model names ("Quick Answers - qwen3:4b-instruct"), menu order, hides helper models |

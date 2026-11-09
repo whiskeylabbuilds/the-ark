@@ -122,6 +122,38 @@ fi
 DC up -d
 scripts/export-ca.sh || true
 
+# ---------- 5b. admin accounts ----------
+# One login for Ask the Ark, Bookshelf, Music and Courses (scripts/create-admins.py). Apps that already
+# have an admin are left alone; the password is only used to sign in and make Ask the Ark's API key.
+step "Admin accounts (Ask the Ark, Bookshelf, Music, Courses)"
+if python3 -I scripts/create-admins.py --needed; then
+  pw=""; RANDOM_PW=0
+  if [ "${ARK_YES:-0}" != 1 ]; then
+    echo "    One login for all four: username ${c_b}admin${c_0} (Ask the Ark signs in with ${c_b}admin@ark.local${c_0})."
+    echo "    If an app already has an admin, type that admin's password (it's never changed)."
+    while :; do
+      read -rsp "    Choose a password (8+ characters), or press Enter for a random one: " pw || pw=""; echo
+      [ -z "$pw" ] && break
+      [ "${#pw}" -ge 8 ] || { echo "    Too short."; continue; }
+      read -rsp "    Type it again: " pw2 || pw2=""; echo
+      [ "$pw" = "$pw2" ] && break
+      echo "    They didn't match. Try again."
+    done
+    unset pw2
+  fi
+  if [ -z "$pw" ]; then
+    pw="Ark-$(python3 -c 'import secrets; print("-".join(secrets.token_hex(2) for _ in range(3)))')"
+    mkdir -p local
+    (umask 077; printf 'The Ark admin login (Ask the Ark, Bookshelf, Music, Courses)\nUsername: admin   (Ask the Ark: admin@ark.local)\nPassword: %s\n\nChange it in each app, then delete this file. See README.md, "Accounts".\n' "$pw" > local/admin-login.txt)
+    RANDOM_PW=1
+  fi
+  ARK_ADMIN_PASSWORD="$pw" python3 -I scripts/create-admins.py || true
+  unset pw
+  [ "$RANDOM_PW" = 1 ] && echo "    Random password saved in ${c_b}$PROJECT/local/admin-login.txt${c_0} (only you can read it)."
+else
+  echo "    every app already has an admin, and Ask the Ark's API key is in .env"
+fi
+
 # ---------- 6. AI models ----------
 step "AI models"
 if ask "Download the AI models now? (about 7-17 GB, picked for this machine)" y; then
@@ -148,41 +180,32 @@ fi
 
 # ---------- 8. finish Ask the Ark ----------
 # Plain model names ("Quick Answers", "Deep Thinker"...), hidden helper models, search tuning, voice and
-# Ark Mechanic all need an Ask the Ark API key, which only exists once the first account is made.
+# Ark Mechanic. Runs after the models are downloaded, with the API key from step 5b.
 step "Finish Ask the Ark (model names, search, voice, Ark Mechanic)"
 if [ -n "$(getenv OPENWEBUI_API_KEY)" ]; then
   scripts/setup-ai.sh || echo "    something failed above; fix it and run scripts/setup-ai.sh again"
-elif [ "${ARK_YES:-0}" != 1 ]; then
-  echo "    1. In a browser, open ${c_b}http://$(getenv HOST_ADDR):3000${c_0} and create the first account (it becomes the admin)."
-  echo "    2. Click your name (bottom left) -> Settings -> Account -> API Keys -> Create new secret key, and copy it."
-  echo "    3. Paste it below. It's saved only in .env on this machine."
-  key=""
-  while :; do
-    read -rsp "    API key (or press Enter to do this later): " key || key=""; echo
-    [ -z "$key" ] && break
-    code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $key" http://127.0.0.1:3000/api/models || true)
-    [ "$code" = 200 ] && break
-    echo "    That key didn't work (HTTP $code). Copy it again and paste it, or press Enter to skip."
-  done
-  if [ -n "$key" ]; then
-    setenv OPENWEBUI_API_KEY "$key"; unset key
-    scripts/setup-ai.sh || echo "    something failed above; fix it and run scripts/setup-ai.sh again"
-  fi
+else
+  echo "    no Ask the Ark API key yet: run ./install.sh again and type the admin password when asked"
 fi
 
 # ---------- done ----------
 A="$(getenv HOST_ADDR)"
 if [ -n "$(getenv OPENWEBUI_API_KEY)" ]; then AI_NEXT="ready. After adding models or books, run scripts/setup-ai.sh"
-else AI_NEXT="create the first account, then run ./install.sh again to finish it (model names, voice, search)"; fi
+else AI_NEXT="not finished: run ./install.sh again"; fi
+LOGIN="username admin (Ask the Ark: admin@ark.local)"
+[ -f local/admin-login.txt ] && LOGIN="$LOGIN, password in local/admin-login.txt"
 cat <<EOF
 
 ${c_o}${c_b}The Ark is running.${c_0}  Dashboard: ${c_b}http://$A${c_0}   (or http://$host.local)
 
+Admin login for all four apps: $LOGIN
+Change the password and add family members in each app: README.md, "Accounts".
+
 Next steps (in a browser):
   1. Ask the Ark   http://$A:3000  -> $AI_NEXT
-  2. Bookshelf     http://$A:5000  -> create the admin account, add each folder under /books as a library.
-  3. Courses       http://$A:8300  -> set up, then Device -> Channels -> Import (Khan Academy is a good start).
-  4. Music         http://$A:4533  -> create the admin account; copy music into $DATA/music.
+  2. Bookshelf     http://$A:5000  -> sign in, add each folder under /books as a library.
+  3. Courses       http://$A:8300  -> sign in, then Device -> Channels -> Import (Khan Academy is a good start).
+  4. Music         http://$A:4533  -> sign in; copy music into $DATA/music.
   5. Your own pages and vehicle list: see local.example/README.md
 EOF
 [ "${NEED_REBOOT:-0}" = 1 ] && echo "${c_b}Reboot once (sudo reboot) so the new name takes effect on your network.${c_0}"
