@@ -7,21 +7,23 @@
 #
 #   scripts/update-host-addr.sh            # update if needed
 #   scripts/update-host-addr.sh --check    # only print what it would do
+#   scripts/update-host-addr.sh --print    # only print the detected LAN address
 set -euo pipefail
 cd "$(dirname "$0")/.."
 CHECK=0; [ "${1:-}" = "--check" ] && CHECK=1
 
 detect_ip() {
-  local ip
-  # The address the default route leaves from (works without internet, as long as there's a router).
-  ip=$(ip -4 route get 1.1.1.1 2>/dev/null | grep -oP 'src \K[0-9.]+' || true)
-  # No default route: take the first global address on a real network port (not Docker).
-  if [ -z "$ip" ]; then
-    ip=$(ip -4 -o addr show scope global 2>/dev/null \
-         | grep -vE ' (docker[0-9]*|br-[0-9a-f]+|veth[^ ]*) ' | awk '{print $4}' | cut -d/ -f1 | head -1)
-  fi
-  echo "$ip"
+  # The LAN address on a real network port. VPNs (wg0, tun0, ...) and Docker networks have no
+  # /sys/class/net/<name>/device, so they're skipped even when a VPN carries the default route.
+  # Ports with a default route come first; works without internet, as long as there's a router.
+  local dev ip
+  for dev in $(ip -4 route show default 2>/dev/null | grep -oP 'dev \K\S+') $(ls /sys/class/net); do
+    [ -e "/sys/class/net/$dev/device" ] || continue
+    ip=$(ip -4 -o addr show dev "$dev" scope global 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -1)
+    [ -n "$ip" ] && { echo "$ip"; return; }
+  done
 }
+[ "${1:-}" = "--print" ] && { detect_ip; exit 0; }
 
 new=$(detect_ip)
 old=$(grep -oP '^HOST_ADDR=\K.*' .env || true)

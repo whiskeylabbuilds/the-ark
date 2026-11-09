@@ -92,7 +92,7 @@ cf=docker-compose.yml
 [ -f local/compose.yml ] && cf="$cf:local/compose.yml"
 if [ "$(getenv COMPOSE_FILE)" != "$cf" ]; then setenv COMPOSE_FILE "$cf"; echo "    COMPOSE_FILE=$cf"; fi
 # LAN address
-ip=$(ip -4 route get 1.1.1.1 2>/dev/null | grep -oP 'src \K[0-9.]+' || true)
+ip=$(scripts/update-host-addr.sh --print || true)   # the real LAN port, never a VPN or Docker address
 [ -n "$ip" ] && [ "$(getenv HOST_ADDR)" != "$ip" ] && { setenv HOST_ADDR "$ip"; echo "    HOST_ADDR=$ip"; }
 [ -n "$(getenv HOST_ADDR)" ] || { echo "No network address found. Connect to your router, then run ./install.sh again."; exit 1; }
 

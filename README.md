@@ -117,6 +117,8 @@ Music, books you bought and anything else under `/srv/ark` stay on your machine.
 - **MeshCore** (`:8086`): flash the radio with the *Companion USB* firmware while you're online, then plug it into the Ark.
   With a Meshtastic radio plugged in too, set `MC_SERIAL_PORT` in `.env` (`ls /dev/serial/by-id/`).
 - **Meshtastic:** the web client uses Web Serial, so open it in Chrome or Chromium on the Ark itself (`http://localhost:8085`).
+- **VPN on the Ark:** most VPN apps block other devices on your Wi-Fi from reaching this machine. Allow local traffic,
+  e.g. NordVPN: `nordvpn set lan-discovery enable` (older versions: `nordvpn set lan-discovery on`), then `scripts/update-host-addr.sh`.
 - **Ollama** is only reachable from the Ark itself (`127.0.0.1:11434`).
 - **Power loss:** every service restarts on its own. Set the BIOS to *After Power Loss → Power On* so the Ark comes back by itself.
 - **Updates:** while online, run `docker compose pull && docker compose up -d`, then re-run `scripts/download-zims.sh` (it replaces older versions).
